@@ -1,0 +1,7 @@
+specialty,n_records,pct_persian_only,pct_code_switched
+Cardiology,220,30.0,70.0
+Dentistry,130,40.0,60.0
+Orthopedics,150,30.0,70.0
+Pediatrics,160,25.0,75.0
+Dermatology,110,40.0,60.0
+General Medicine,230,20.0,80.0
