@@ -1,0 +1,7 @@
+{
+  "record_id": "record_id",
+  "patient_id": "patient_id",
+  "specialty": "specialty",
+  "site_id": "site_id",
+  "note": "note"
+}

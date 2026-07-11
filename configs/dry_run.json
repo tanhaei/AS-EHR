@@ -1,0 +1,36 @@
+{
+  "_status": "Synthetic demonstration only; no clinical claims may be derived from this config.",
+  "data": {
+    "input_jsonl": "data/examples/records.jsonl",
+    "knowledge_base_csv": "data/examples/specialty_knowledge_base.csv"
+  },
+  "embedding": {
+    "backend": "hashing",
+    "dimension": 256
+  },
+  "filter": {
+    "tau": -0.01,
+    "safety_layer": true,
+    "default_K": 4,
+    "K_by_specialty": {
+      "Cardiology": 4,
+      "Dentistry": 4,
+      "Orthopedics": 4,
+      "Pediatrics": 4,
+      "Dermatology": 4,
+      "General Medicine": 4
+    }
+  },
+  "inference": {
+    "outputs": {
+      "specialty-aware": "output/dry_run/predictions_aware.jsonl",
+      "specialty-agnostic": "output/dry_run/predictions_agnostic.jsonl"
+    }
+  },
+  "baseline": {
+    "model_id": "dmis-lab/biobert-base-cased-v1.2",
+    "max_words": 200,
+    "output_jsonl": "output/dry_run/predictions_baseline.jsonl"
+  }
+}
+

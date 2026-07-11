@@ -1,0 +1,70 @@
+{
+  "_warning": "Executable example, not a record of the original experiment. Replace every illustrative value with the original run log before publication.",
+  "model": {
+    "model_id": "google/medgemma-27b-it",
+    "model_revision": "main",
+    "device_map": "auto",
+    "torch_dtype": "bfloat16"
+  },
+  "data": {
+    "train_jsonl": "data/private/train.jsonl",
+    "validation_jsonl": "data/private/tune.jsonl",
+    "input_jsonl": "data/private/test.jsonl",
+    "knowledge_base_csv": "data/private/specialty_knowledge_base.csv"
+  },
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+  },
+  "training": {
+    "output_dir": "output/medgemma_lora",
+    "epochs": 3,
+    "learning_rate": 0.0002,
+    "batch_size": 1,
+    "eval_batch_size": 1,
+    "gradient_accumulation_steps": 16,
+    "max_length": 8192,
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.0,
+    "logging_steps": 10,
+    "bf16": true,
+    "seed": 2026
+  },
+  "embedding": {
+    "layer": -1,
+    "pooling": "mean",
+    "normalization": "l2",
+    "max_length": 512
+  },
+  "generation": {
+    "max_new_tokens": 512,
+    "do_sample": false
+  },
+  "filter": {
+    "tau": 0.75,
+    "safety_layer": true,
+    "default_K": 12,
+    "K_by_specialty": {
+      "Cardiology": 12,
+      "Dentistry": 8,
+      "Orthopedics": 10,
+      "Pediatrics": 12,
+      "Dermatology": 8,
+      "General Medicine": 15
+    }
+  },
+  "inference": {
+    "outputs": {
+      "specialty-aware": "output/medgemma_lora/predictions_aware.jsonl",
+      "specialty-agnostic": "output/medgemma_lora/predictions_agnostic.jsonl"
+    }
+  },
+  "baseline": {
+    "model_id": "dmis-lab/biobert-base-cased-v1.2",
+    "max_words": 200,
+    "output_jsonl": "output/medgemma_lora/predictions_baseline.jsonl"
+  }
+}
+

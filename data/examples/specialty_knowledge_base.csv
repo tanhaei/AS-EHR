@@ -1,0 +1,13 @@
+specialty,concept_id,descriptor,mandatory,synonyms
+Cardiology,CARD-001,پرفشاری خون,false,hypertension|فشار خون بالا
+Cardiology,CARD-002,داروهای قلبی و فشار خون,false,Losartan|لوزارتان
+Dentistry,DENT-001,پوسیدگی و درد دندان,false,dental caries|tooth pain
+Dentistry,DENT-002,خطر خونریزی پیش از اقدام دندانپزشکی,true,Warfarin|INR
+Orthopedics,ORTH-001,شکستگی استخوان و آسیب اندام,false,fracture|شکستگی
+Orthopedics,ORTH-002,درد اسکلتی عضلانی,false,musculoskeletal pain
+Pediatrics,PED-001,تب و عفونت در کودک,false,fever|تب
+Pediatrics,PED-002,وزن و دوز داروی کودک,true,pediatric weight|kg
+Dermatology,DERM-001,پسوریازیس و ضایعات پوستی,false,psoriasis|پلاک پوستی
+Dermatology,DERM-002,داروی موضعی و وضعیت بارداری,true,Betamethasone|pregnancy
+General Medicine,GEN-001,دیابت و کنترل قند خون,false,diabetes|HbA1c
+General Medicine,GEN-002,داروهای مزمن و نتایج آزمایش,true,Metformin|laboratory results

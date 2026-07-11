@@ -1,0 +1,51 @@
+{
+  "_status": "Only values explicitly reported in the manuscript are populated. Null fields must be recovered from original logs before claiming reproduction.",
+  "model": {
+    "reported_family": "MedGemma 27B",
+    "model_id": null,
+    "model_revision": null,
+    "torch_dtype": "bfloat16"
+  },
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "dropout": null,
+    "target_modules": null
+  },
+  "training": {
+    "epochs": 3,
+    "learning_rate": 0.0002,
+    "batch_size": null,
+    "eval_batch_size": null,
+    "gradient_accumulation_steps": null,
+    "max_length": null,
+    "warmup_ratio": null,
+    "weight_decay": null,
+    "seed": null,
+    "reported_hardware": "4 x NVIDIA A100 80GB"
+  },
+  "embedding": {
+    "layer": null,
+    "pooling": null,
+    "normalization": null,
+    "max_length": null
+  },
+  "generation": {
+    "max_new_tokens": null,
+    "do_sample": null,
+    "temperature": null,
+    "top_p": null
+  },
+  "filter": {
+    "tau": 0.75,
+    "K_by_specialty": {
+      "Cardiology": 12,
+      "Dentistry": 8,
+      "Orthopedics": 10,
+      "Pediatrics": 12,
+      "Dermatology": 8,
+      "General Medicine": 15
+    }
+  }
+}
+
