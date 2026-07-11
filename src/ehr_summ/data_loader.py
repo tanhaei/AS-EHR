@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+from importlib.resources import files
 
 import pandas as pd
 
@@ -12,9 +13,13 @@ DATA_DIR = os.path.normpath(os.path.join(_HERE, "..", "..", "data"))
 
 def _load(name: str) -> pd.DataFrame:
     path = os.path.join(DATA_DIR, name)
-    if not os.path.exists(path):
+    if os.path.exists(path):
+        return pd.read_csv(path)
+    resource = files("ehr_summ").joinpath("paper_data", name)
+    if not resource.is_file():
         raise FileNotFoundError(f"missing data file: {path}")
-    return pd.read_csv(path)
+    with resource.open("rb") as handle:
+        return pd.read_csv(handle)
 
 
 def specialty_distribution() -> pd.DataFrame:   # Table 3

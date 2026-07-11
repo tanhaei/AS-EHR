@@ -12,6 +12,8 @@ from __future__ import annotations
 from collections import Counter
 from typing import Iterable, Sequence
 
+from .preprocessing import tokenize_clinical
+
 
 # --------------------------------------------------------------------------- #
 # Precision / Recall / F1  (Eqs. 1-2)
@@ -96,3 +98,30 @@ def weighted_average(values: Sequence[float], weights: Sequence[float]) -> float
     if denom == 0:
         raise ValueError("weights sum to zero")
     return sum(v * w for v, w in zip(values, weights)) / denom
+
+
+def rouge_l(candidate: Sequence[str], reference: Sequence[str]) -> float:
+    """ROUGE-L recall based on the longest common subsequence."""
+    if not reference:
+        return 0.0
+    previous = [0] * (len(reference) + 1)
+    for token in candidate:
+        current = [0]
+        for index, ref_token in enumerate(reference, 1):
+            if token == ref_token:
+                current.append(previous[index - 1] + 1)
+            else:
+                current.append(max(current[-1], previous[index]))
+        previous = current
+    return previous[-1] / len(reference)
+
+
+def text_rouge(candidate: str, reference: str) -> dict[str, float]:
+    """Persian-normalized ROUGE-1/2/L with an explicit tokenizer."""
+    candidate_tokens = tokenize_clinical(candidate)
+    reference_tokens = tokenize_clinical(reference)
+    return {
+        "rouge_1": rouge_n(candidate_tokens, reference_tokens, n=1),
+        "rouge_2": rouge_n(candidate_tokens, reference_tokens, n=2),
+        "rouge_l": rouge_l(candidate_tokens, reference_tokens),
+    }

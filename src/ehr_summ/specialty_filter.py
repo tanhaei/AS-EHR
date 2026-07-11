@@ -15,6 +15,8 @@ from typing import Callable, Sequence
 
 import numpy as np
 
+from .schemas import ClinicalFeature
+
 DEFAULT_TAU = 0.75  # paper's selected operating point (Table 4)
 
 
@@ -70,3 +72,29 @@ def rank_and_select(
     if K is not None:
         scored = scored[:K]
     return scored
+
+
+def select_with_safety_layer(
+    features: Sequence[ClinicalFeature],
+    specialty_vec: np.ndarray,
+    embed: Callable[[ClinicalFeature], np.ndarray],
+    *,
+    tau: float = DEFAULT_TAU,
+    K: int | None = None,
+) -> list[ClinicalFeature]:
+    """Specialty ranking with a non-negotiable clinical-safety channel.
+
+    Mandatory facts are always retained and do not consume the specialty top-K
+    budget.  This is an optional extension; disable it when reproducing the
+    manuscript's original Algorithm 1 exactly.
+    """
+    mandatory = [feature for feature in features if feature.mandatory]
+    optional = [feature for feature in features if not feature.mandatory]
+    ranked = rank_and_select(optional, specialty_vec, embed=embed, tau=tau, K=K)
+    selected = mandatory + [item.feature for item in ranked]
+    seen: set[str] = set()
+    return [
+        feature
+        for feature in selected
+        if not (feature.feature_id in seen or seen.add(feature.feature_id))
+    ]

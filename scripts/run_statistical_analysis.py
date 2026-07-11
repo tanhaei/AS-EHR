@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the statistical analysis (Section 6.2-6.3, Table 5).
+"""Demonstrate the statistical analysis (Section 6.2-6.3, Table 5).
 
 Using calibrated synthetic per-record paired F1 scores:
   * pooled paired test of proposed vs BioBERT + Cohen's d,
@@ -22,6 +22,8 @@ from ehr_summ.synthetic import generate_all_pairs
 
 
 def main() -> int:
+    print("SYNTHETIC DEMONSTRATION: these values are calibrated to the paper targets")
+    print("and do not independently validate the clinical results.\n")
     pairs = generate_all_pairs(seed=0)
 
     print("== Per-specialty paired comparison (proposed vs BioBERT) ==")
@@ -69,7 +71,7 @@ def main() -> int:
     for label, ok in checks.items():
         print(f"  [{'OK ' if ok else 'FAIL'}] {label}")
     all_ok = all(checks.values())
-    print("\n" + ("STATISTICAL RESULTS REPRODUCED [OK]" if all_ok else "MISMATCH [FAIL]"))
+    print("\n" + ("SYNTHETIC ANALYSIS PIPELINE COMPLETED [OK]" if all_ok else "MISMATCH [FAIL]"))
     return 0 if all_ok else 1
 
 

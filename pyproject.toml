@@ -4,18 +4,34 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ehr-specialty-summarization"
-version = "1.0.0"
-description = "Reproduction harness for specialty-aware multilingual EHR summarization (MedGemma 27B + BioArc)."
+version = "2.0.0"
+description = "Reproducible specialty-aware multilingual EHR summarization pipeline (MedGemma + BioArc)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = ["numpy>=1.24", "scipy>=1.10", "pandas>=2.0", "matplotlib>=3.7"]
 
 [project.optional-dependencies]
-test = ["pytest>=7.0"]
+test = ["pytest>=7.0", "ruff>=0.5"]
+model = [
+  "torch>=2.2",
+  "transformers>=4.50,<5",
+  "accelerate>=1.0",
+  "peft>=0.14",
+  "sentencepiece>=0.2",
+]
+analysis = ["statsmodels>=0.14"]
+serve = ["fastapi>=0.115", "uvicorn>=0.30"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+ehr_summ = ["paper_data/*.csv"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

@@ -47,14 +47,26 @@ def main() -> int:
     rouge_macro = macro_average(metrics["rouge_n"])
     all_ok &= _check("macro-average ROUGE-N", rouge_macro, 0.855, 0.001)
 
-    print("\n== Code-switched term accuracy (Section 5.4) ==")
+    print("\n== Code-switched term accuracy proxy (Section 5.4) ==")
     cs_acc_weighted = weighted_average(metrics["code_switched_term_accuracy"], cs_counts)
-    all_ok &= _check("pooled code-switched accuracy", cs_acc_weighted, 0.852, 0.005)
+    print("  NOTE: record-count weighting is only a proxy; exact term-level pooling requires")
+    print("        correct/total term counts for every specialty.")
+    all_ok &= _check("record-weighted proxy", cs_acc_weighted, 0.852, 0.005)
 
     print("\n== Reader study (Table 7; Abstract) ==")
     all_ok &= _check("total experts", int(feedback["n_experts"].sum()), 130, 0)
-    all_ok &= _check("mean satisfaction", macro_average(feedback["satisfaction_mean"]), 4.4, 0.05)
-    all_ok &= _check("mean coverage", macro_average(feedback["coverage_mean"]), 4.5, 0.05)
+    all_ok &= _check(
+        "expert-weighted satisfaction",
+        weighted_average(feedback["satisfaction_mean"], feedback["n_experts"]),
+        4.4,
+        0.05,
+    )
+    all_ok &= _check(
+        "expert-weighted coverage",
+        weighted_average(feedback["coverage_mean"], feedback["n_experts"]),
+        4.5,
+        0.05,
+    )
 
     print("\n== Baseline comparison (Table 5) ==")
     base = dl.baseline_comparison().set_index("specialty")
@@ -62,7 +74,7 @@ def main() -> int:
     all_ok &= _check("pooled proposed F1", weighted_average(per["proposed_f1"], n), 0.83, 0.005)
     all_ok &= _check("pooled BioBERT F1", weighted_average(per["biobert_f1"], n), 0.72, 0.005)
 
-    print("\n" + ("ALL CONSISTENT [OK]" if all_ok else "INCONSISTENCY DETECTED [FAIL]"))
+    print("\n" + ("AGGREGATE CONSISTENCY CHECKS PASSED" if all_ok else "INCONSISTENCY DETECTED"))
     return 0 if all_ok else 1
 
 

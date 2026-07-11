@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the threshold-selection experiment (Section 5.2, Table 4).
+"""Demonstrate the threshold-selection procedure (Section 5.2, Table 4).
 
 Sweeps tau over the paper's grid on a synthetic held-out tuning split and
 reports precision/recall/F1 of "clinically required feature" retention,
@@ -9,12 +9,14 @@ Run:  python scripts/run_threshold_sweep.py
 """
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import numpy as np
+import pandas as pd
 
 from ehr_summ import data_loader as dl
 from ehr_summ.metrics import precision_recall_f1
@@ -36,16 +38,41 @@ def sweep(sims: np.ndarray, gold: np.ndarray):
 
 
 def main() -> int:
-    sims, gold = generate_tuning_scores(seed=0, n=600)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--input-csv",
+        help=(
+            "Real tuning evidence with columns similarity,is_required. "
+            "Omit for the labelled synthetic demo."
+        ),
+    )
+    parser.add_argument("--output-csv")
+    args = parser.parse_args()
+    if args.input_csv:
+        evidence = pd.read_csv(args.input_csv)
+        missing = {"similarity", "is_required"} - set(evidence.columns)
+        if missing:
+            raise ValueError(f"threshold evidence missing columns: {sorted(missing)}")
+        sims = evidence["similarity"].to_numpy(float)
+        gold = evidence["is_required"].astype(bool).to_numpy()
+        label = "REAL TUNING EVIDENCE"
+    else:
+        sims, gold = generate_tuning_scores(seed=0, n=600)
+        label = "SYNTHETIC DEMONSTRATION"
     rows = sweep(sims, gold)
 
-    print("Synthetic threshold sweep (tuning split):")
+    print(f"{label} threshold sweep:")
     print(f"{'tau':>5} {'precision':>10} {'recall':>8} {'f1':>7}")
     for tau, p, r, f1 in rows:
         print(f"{tau:5.2f} {p:10.2f} {r:8.2f} {f1:7.2f}")
 
     best_tau = max(rows, key=lambda row: row[3])[0]
     print(f"\nSelected operating point (max F1): tau = {best_tau:.2f}")
+    if args.output_csv:
+        output = Path(args.output_csv)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(rows, columns=["tau", "precision", "recall", "f1"]).to_csv(output, index=False)
+        print(f"Wrote sweep evidence to {output}")
 
     print("\nPaper-reported sweep (Table 4):")
     print(dl.threshold_sensitivity().to_string(index=False))
@@ -65,10 +92,12 @@ def main() -> int:
     print("\n== Consistency checks ==")
     print(f"  [{'OK ' if prec_monotone else 'FAIL'}] precision increases with tau")
     print(f"  [{'OK ' if rec_monotone else 'FAIL'}] recall decreases with tau")
-    print(f"  [{'OK ' if in_plateau else 'FAIL'}] F1 maximised in paper plateau {{0.70, 0.75}}")
-    ok = prec_monotone and rec_monotone and in_plateau
-    print("\n" + ("Threshold-selection methodology reproduced [OK]"
-                  if ok else "Trade-off not reproduced [FAIL]"))
+    if not args.input_csv:
+        print(f"  [{'OK ' if in_plateau else 'FAIL'}] F1 maximised in paper plateau {{0.70, 0.75}}")
+    ok = prec_monotone and rec_monotone and (in_plateau if not args.input_csv else True)
+    message = ("Real threshold evidence analyzed" if args.input_csv
+               else "Synthetic threshold demonstration completed")
+    print("\n" + (message + " [OK]" if ok else "Trade-off check failed [FAIL]"))
     return 0 if ok else 1
 
 

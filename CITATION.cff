@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: "Specialty-Aware Multilingual EHR Summarization Pipeline"
+message: "Please cite the associated manuscript and this software release."
+type: software
+version: 2.0.0
+date-released: 2026-07-11
+license: MIT
+authors:
+  - family-names: Tanhaei
+    given-names: Mohammad
+repository-code: "https://github.com/tanhaei/AS-EHR"
+

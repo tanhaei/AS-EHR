@@ -42,6 +42,35 @@ def bootstrap_ci(
     return float(statistic(values)), float(low), float(high)
 
 
+def cluster_bootstrap_ci(
+    values: Sequence[float],
+    clusters: Sequence[object],
+    statistic: Callable[[np.ndarray], float] = np.mean,
+    n_boot: int = 1000,
+    ci: float = 95.0,
+    seed: int | None = 0,
+) -> tuple[float, float, float]:
+    """Percentile bootstrap that resamples whole patients/clusters.
+
+    This avoids treating multiple records from the same patient as independent.
+    """
+    values = np.asarray(values, dtype=float)
+    clusters = np.asarray(clusters, dtype=object)
+    if values.shape != clusters.shape or values.size == 0:
+        raise ValueError("values and clusters must be non-empty and have the same shape")
+    unique = np.unique(clusters)
+    members = {cluster: np.flatnonzero(clusters == cluster) for cluster in unique}
+    rng = np.random.default_rng(seed)
+    boots = np.empty(n_boot)
+    for index in range(n_boot):
+        sampled = rng.choice(unique, size=len(unique), replace=True)
+        positions = np.concatenate([members[cluster] for cluster in sampled])
+        boots[index] = statistic(values[positions])
+    alpha = (100.0 - ci) / 2.0
+    low, high = np.percentile(boots, [alpha, 100.0 - alpha])
+    return float(statistic(values)), float(low), float(high)
+
+
 # --------------------------------------------------------------------------- #
 # Effect sizes
 # --------------------------------------------------------------------------- #
@@ -87,7 +116,13 @@ def paired_test(x: Sequence[float], y: Sequence[float], alpha_normal: float = 0.
     """Paired t-test if differences look normal (Shapiro-Wilk p > alpha),
     otherwise Wilcoxon signed-rank. Reports the matching effect size."""
     x, y = np.asarray(x, float), np.asarray(y, float)
+    if x.shape != y.shape or x.ndim != 1 or x.size < 2:
+        raise ValueError("x and y must be one-dimensional paired samples with at least two values")
     diff = x - y
+
+    if np.all(diff == 0):
+        return PairedResult("no difference", 0.0, 1.0, "rank_biserial", 0.0,
+                            float(x.mean()), float(y.mean()))
 
     # Shapiro-Wilk needs >= 3 points and some variance.
     normal = False

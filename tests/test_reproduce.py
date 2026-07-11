@@ -29,8 +29,8 @@ def test_pooled_and_macro_metrics():
 def test_reader_study_totals():
     f = dl.expert_feedback()
     assert int(f["n_experts"].sum()) == 130
-    assert abs(macro_average(f["satisfaction_mean"]) - 4.4) < 0.05
-    assert abs(macro_average(f["coverage_mean"]) - 4.5) < 0.05
+    assert abs(weighted_average(f["satisfaction_mean"], f["n_experts"]) - 4.4) < 0.05
+    assert abs(weighted_average(f["coverage_mean"], f["n_experts"]) - 4.5) < 0.05
 
 
 def test_f1_ci_table_pooled():
@@ -58,3 +58,12 @@ def test_synthetic_per_specialty_means_match_table5():
     for name, ps in pairs.items():
         assert abs(ps.proposed.mean() - base.loc[name, "proposed_f1"]) < 0.01
         assert abs(ps.baseline.mean() - base.loc[name, "biobert_f1"]) < 0.01
+
+
+def test_packaged_aggregate_tables_match_repository_copies():
+    root = Path(__file__).resolve().parents[1]
+    packaged = root / "src/ehr_summ/paper_data"
+    for source in (root / "data").glob("*.csv"):
+        target = packaged / source.name
+        assert target.exists()
+        assert source.read_bytes() == target.read_bytes()

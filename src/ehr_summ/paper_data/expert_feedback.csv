@@ -1,0 +1,7 @@
+specialty,satisfaction_mean,satisfaction_sd,coverage_mean,coverage_sd,n_experts
+Cardiology,4.5,0.4,4.6,0.3,25
+Dentistry,4.2,0.5,4.3,0.4,18
+Orthopedics,4.3,0.4,4.4,0.4,22
+Pediatrics,4.4,0.3,4.5,0.4,20
+Dermatology,4.3,0.4,4.4,0.5,15
+General Medicine,4.5,0.3,4.7,0.3,30
